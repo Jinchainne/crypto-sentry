@@ -34,18 +34,18 @@ body {
 /* Selection */
 ::selection { background: rgba(232,97,10,0.3); color: #F5F0E8; }
 
-/* ── Animated Orbs ───────────────────────────────────────── */
+/* ── Animated Orbs (mix-blend-mode: screen makes them glow) ── */
 @keyframes orb1 {
-  0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.15); opacity: 1; }
+  0%, 100% { transform: scale(1); opacity: 0.15; }
+  50% { transform: scale(1.15); opacity: 0.25; }
 }
 @keyframes orb2 {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.2); opacity: 0.85; }
+  0%, 100% { transform: scale(1); opacity: 0.12; }
+  50% { transform: scale(1.2); opacity: 0.20; }
 }
 @keyframes orb3 {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; }
-  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.7; }
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.08; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.15; }
 }
 .animate-orb-1 { animation: orb1 8s ease-in-out infinite; }
 .animate-orb-2 { animation: orb2 11s ease-in-out infinite 2s; }
@@ -154,7 +154,7 @@ body {
   75%, 100% { transform: scale(2); opacity: 0; }
 }
 
-/* ── Icon Box (Bloom-AI style) ───────────────────────────── */
+/* ── Icon Box ────────────────────────────────────────────── */
 .icon-box {
   width: 28px;
   height: 28px;
@@ -187,7 +187,7 @@ tr:hover td { background: rgba(255,255,255,0.03); }
 }
 .animate-glow-pulse { animation: glowPulse 2.5s ease-in-out infinite; }
 
-/* ── Nav Flower (logo pulse) ─────────────────────────────── */
+/* ── Nav Flower ──────────────────────────────────────────── */
 @keyframes navFlower {
   0%, 100% { filter: drop-shadow(0 0 6px rgba(232,97,10,0.5)); transform: scale(1); }
   50% { filter: drop-shadow(0 0 14px rgba(245,160,32,0.85)); transform: scale(1.05); }
@@ -201,7 +201,7 @@ tr:hover td { background: rgba(255,255,255,0.03); }
 }
 .animate-slide-up { animation: slideInUp 0.5s ease-out forwards; }
 
-/* ── Shimmer Loading ─────────────────────────────────────── */
+/* ── Shimmer ─────────────────────────────────────────────── */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
