@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import AnimatedBackground from "@/components/AnimatedBackground";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,8 +19,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} antialiased`}>
-        <Navbar />
-        {children}
+        <AnimatedBackground />
+        <div className="relative" style={{ zIndex: 10 }}>
+          <Navbar />
+          <div className="pt-20">
+            {children}
+          </div>
+        </div>
       </body>
     </html>
   );

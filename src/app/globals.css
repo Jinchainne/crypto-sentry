@@ -17,7 +17,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: radial-gradient(ellipse at 55% 35%, #1E0E06 0%, #130804 35%, #0A0502 70%, #060301 100%) fixed;
+  background: #0E0804;
   color: var(--color-text);
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -34,7 +34,24 @@ body {
 /* Selection */
 ::selection { background: rgba(232,97,10,0.3); color: #F5F0E8; }
 
-/* Glass card */
+/* ── Animated Orbs ───────────────────────────────────────── */
+@keyframes orb1 {
+  0%, 100% { transform: scale(1); opacity: 0.10; }
+  50% { transform: scale(1.15); opacity: 0.18; }
+}
+@keyframes orb2 {
+  0%, 100% { transform: scale(1); opacity: 0.08; }
+  50% { transform: scale(1.2); opacity: 0.14; }
+}
+@keyframes orb3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.05; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.09; }
+}
+.animate-orb-1 { animation: orb1 8s ease-in-out infinite; }
+.animate-orb-2 { animation: orb2 11s ease-in-out infinite 2s; }
+.animate-orb-3 { animation: orb3 14s ease-in-out infinite 5s; }
+
+/* ── Glass Card ──────────────────────────────────────────── */
 .glass-card {
   background: rgba(255,255,255,0.04);
   backdrop-filter: blur(12px);
@@ -56,7 +73,7 @@ body {
   box-shadow: 0 0 30px rgba(232,97,10,0.25);
 }
 
-/* Orange gradient text */
+/* ── Orange Gradient Text ────────────────────────────────── */
 .orange-gradient-text {
   background: linear-gradient(135deg, #E8610A 0%, #F5A020 100%);
   -webkit-background-clip: text;
@@ -64,7 +81,7 @@ body {
   background-clip: text;
 }
 
-/* Orange button */
+/* ── Buttons ─────────────────────────────────────────────── */
 .orange-btn {
   background: #E8610A;
   color: #0E0804;
@@ -73,14 +90,10 @@ body {
   padding: 10px 24px;
   transition: all 0.2s ease;
 }
-.orange-btn:hover {
-  background: #F5A020;
-  box-shadow: 0 0 30px rgba(232,97,10,0.25);
-}
+.orange-btn:hover { background: #F5A020; box-shadow: 0 0 30px rgba(232,97,10,0.25); }
 .orange-btn:active { transform: scale(0.95); }
 .orange-btn:disabled { opacity: 0.2; }
 
-/* Orange outline button */
 .orange-btn-outline {
   border: 1px solid #E8610A;
   color: #E8610A;
@@ -88,12 +101,11 @@ body {
   border-radius: 9999px;
   padding: 10px 24px;
   transition: all 0.2s ease;
+  background: transparent;
 }
-.orange-btn-outline:hover {
-  background: rgba(232,97,10,0.15);
-}
+.orange-btn-outline:hover { background: rgba(232,97,10,0.15); }
 
-/* Pill badges */
+/* ── Pill Badges ─────────────────────────────────────────── */
 .pill-badge {
   display: inline-flex;
   align-items: center;
@@ -120,7 +132,7 @@ body {
   color: #E8610A;
 }
 
-/* Live dot */
+/* ── Live Dot ────────────────────────────────────────────── */
 .live-dot {
   position: relative;
   display: inline-block;
@@ -138,51 +150,58 @@ body {
   animation: ping 1.5s cubic-bezier(0,0,0.2,1) infinite;
   opacity: 0.75;
 }
-
 @keyframes ping {
   75%, 100% { transform: scale(2); opacity: 0; }
 }
 
-/* Stat cards */
-.stat-card {
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+/* ── Icon Box (Bloom-AI style) ───────────────────────────── */
+.icon-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(232,97,10,0.15);
+  border: 1px solid rgba(232,97,10,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Signal card with left border */
+/* ── Signal Cards ────────────────────────────────────────── */
 .signal-buy { border-left: 3px solid #22c55e; }
 .signal-sell { border-left: 3px solid #ef4444; }
 .signal-hold { border-left: 3px solid #F5A020; }
 
-/* Risk badges */
+/* ── Risk Badges ─────────────────────────────────────────── */
 .risk-low { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
 .risk-medium { background: rgba(245,160,32,0.15); color: #F5A020; border: 1px solid rgba(245,160,32,0.3); }
 .risk-high { background: rgba(232,97,10,0.15); color: #E8610A; border: 1px solid rgba(232,97,10,0.3); }
 .risk-extreme { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
 
-/* Table row hover */
+/* ── Table ───────────────────────────────────────────────── */
 tr:hover td { background: rgba(255,255,255,0.03); }
 
-/* Animated gradient border */
-.gradient-border {
-  position: relative;
-  background: linear-gradient(#0E0804, #0E0804) padding-box,
-    linear-gradient(135deg, #E8610A, #F5A020, #E8610A) border-box;
-  border: 1px solid transparent;
-}
-
-/* Glow pulse */
+/* ── Glow Pulse ──────────────────────────────────────────── */
 @keyframes glowPulse {
   0%, 100% { box-shadow: 0 0 12px rgba(232,97,10,0.25); }
   50% { box-shadow: 0 0 32px rgba(232,97,10,0.55); }
 }
 .animate-glow-pulse { animation: glowPulse 2.5s ease-in-out infinite; }
 
-/* Shimmer loading */
+/* ── Nav Flower (logo pulse) ─────────────────────────────── */
+@keyframes navFlower {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(232,97,10,0.5)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 14px rgba(245,160,32,0.85)); transform: scale(1.05); }
+}
+.animate-nav-flower { animation: navFlower 2.8s ease-in-out infinite; }
+
+/* ── Slide In ────────────────────────────────────────────── */
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up { animation: slideInUp 0.5s ease-out forwards; }
+
+/* ── Shimmer Loading ─────────────────────────────────────── */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -191,25 +210,4 @@ tr:hover td { background: rgba(255,255,255,0.03); }
   background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.8s infinite;
-}
-
-/* Slide animations */
-@keyframes slideInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-slide-up { animation: slideInUp 0.5s ease-out forwards; }
-
-/* Cursor glow */
-.cursor-glow {
-  pointer-events: none;
-  position: fixed;
-  width: 480px;
-  height: 480px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(232,97,10,0.07) 0%, transparent 70%);
-  transform: translate(-50%, -50%);
-  transition: left 0.08s ease, top 0.08s ease;
-  z-index: 5;
-  will-change: left, top;
 }
