@@ -17,9 +17,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} bg-black text-white antialiased`}>
-        <Navbar />
-        {children}
+      <body className={`${inter.className} bg-[#0a0a0a] text-white antialiased`}>
+        <div className="fixed inset-0 mesh-gradient pointer-events-none" />
+        <div className="relative">
+          <Navbar />
+          {children}
+        </div>
       </body>
     </html>
   );
