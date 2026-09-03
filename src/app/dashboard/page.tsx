@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { MarketRankItem, TradingSignal, MemeToken } from "@/lib/types";
 import { formatPercent, timeAgo } from "@/lib/utils";
+import MarketTicker from "@/components/MarketTicker";
 
 function getRiskClass(risk: string): string {
   switch (risk) {
@@ -39,6 +40,8 @@ export default function DashboardPage() {
         </h1>
         <p className="text-[#A8A09A] text-sm mt-1">Run the agent, pick a signal, execute. Deeper tools live under each section.</p>
       </div>
+
+      <MarketTicker />
 
       {/* KPI Cards — Bloom-AI style */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

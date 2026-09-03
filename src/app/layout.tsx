@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import AnimatedBackground from "@/components/AnimatedBackground";
+import PixelBackground from "@/components/PixelBackground";
+import CursorGlow from "@/components/CursorGlow";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +22,8 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${inter.className} antialiased`}>
         <AnimatedBackground />
+        <PixelBackground />
+        <CursorGlow />
         <div className="relative" style={{ zIndex: 10 }}>
           <Navbar />
           <div className="pt-20">
