@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
   --color-bg: #0E0804;
@@ -29,7 +29,7 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: rgba(232,97,10,0.7); }
 ::selection { background: rgba(232,97,10,0.3); color: #F5F0E8; }
 
-/* ── Animated Orbs ───────────────────────────────────────── */
+/* Orbs */
 @keyframes orb1 { 0%,100%{transform:scale(1);opacity:.12} 50%{transform:scale(1.18);opacity:.22} }
 @keyframes orb2 { 0%,100%{transform:scale(1);opacity:.10} 50%{transform:scale(1.25);opacity:.18} }
 @keyframes orb3 { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.06} 50%{transform:translate(-50%,-50%) scale(1.12);opacity:.12} }
@@ -37,19 +37,19 @@ body {
 .animate-orb-2{animation:orb2 11s ease-in-out infinite 2s}
 .animate-orb-3{animation:orb3 14s ease-in-out infinite 5s}
 
-/* ── Market Ticker ───────────────────────────────────────── */
+/* Market Ticker */
 @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
 .animate-ticker { animation: ticker 30s linear infinite; }
 
-/* ── Glass Card ──────────────────────────────────────────── */
+/* Glass Card */
 .glass-card{background:rgba(255,255,255,.04);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05)}
 .glass-card-hover{background:rgba(255,255,255,.04);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);transition:all .3s ease}
 .glass-card-hover:hover{border-color:rgba(232,97,10,.3);box-shadow:0 0 30px rgba(232,97,10,.25)}
 
-/* ── Orange Gradient Text ────────────────────────────────── */
+/* Orange Gradient Text */
 .orange-gradient-text{background:linear-gradient(135deg,#E8610A 0%,#F5A020 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 
-/* ── Buttons ─────────────────────────────────────────────── */
+/* Buttons */
 .orange-btn{background:#E8610A;color:#0E0804;font-weight:600;border-radius:9999px;padding:10px 24px;transition:all .2s ease}
 .orange-btn:hover{background:#F5A020;box-shadow:0 0 30px rgba(232,97,10,.25)}
 .orange-btn:active{transform:scale(.95)}
@@ -57,42 +57,42 @@ body {
 .orange-btn-outline{border:1px solid #E8610A;color:#E8610A;font-weight:600;border-radius:9999px;padding:10px 24px;transition:all .2s ease;background:transparent}
 .orange-btn-outline:hover{background:rgba(232,97,10,.15)}
 
-/* ── Pill Badges ─────────────────────────────────────────── */
+/* Pill Badges */
 .pill-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:9999px;font-size:12px;font-weight:500;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#A8A09A}
 .pill-badge-orange{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:9999px;font-size:12px;font-weight:600;background:rgba(232,97,10,.15);border:1px solid rgba(232,97,10,.3);color:#E8610A}
 
-/* ── Live Dot ────────────────────────────────────────────── */
+/* Live Dot */
 .live-dot{position:relative;display:inline-block;width:8px;height:8px;border-radius:50%;background:#E8610A}
 .live-dot::before{content:'';position:absolute;inset:0;border-radius:50%;background:#E8610A;animation:ping 1.5s cubic-bezier(0,0,.2,1) infinite;opacity:.75}
 @keyframes ping{75%,100%{transform:scale(2);opacity:0}}
 
-/* ── Icon Box ────────────────────────────────────────────── */
+/* Icon Box */
 .icon-box{width:28px;height:28px;border-radius:8px;background:rgba(232,97,10,.15);border:1px solid rgba(232,97,10,.3);display:flex;align-items:center;justify-content:center}
 
-/* ── Signal Cards ────────────────────────────────────────── */
+/* Signal Cards */
 .signal-buy{border-left:3px solid #22c55e}
 .signal-sell{border-left:3px solid #ef4444}
 .signal-hold{border-left:3px solid #F5A020}
 
-/* ── Risk Badges ─────────────────────────────────────────── */
+/* Risk Badges */
 .risk-low{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
 .risk-medium{background:rgba(245,160,32,.15);color:#F5A020;border:1px solid rgba(245,160,32,.3)}
 .risk-high{background:rgba(232,97,10,.15);color:#E8610A;border:1px solid rgba(232,97,10,.3)}
 .risk-extreme{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
 
-/* ── Table ───────────────────────────────────────────────── */
+/* Table */
 tr:hover td{background:rgba(255,255,255,.03)}
 
-/* ── Glow Pulse ──────────────────────────────────────────── */
+/* Glow Pulse */
 @keyframes glowPulse{0%,100%{box-shadow:0 0 12px rgba(232,97,10,.25)} 50%{box-shadow:0 0 32px rgba(232,97,10,.55)}}
 .animate-glow-pulse{animation:glowPulse 2.5s ease-in-out infinite}
 
-/* ── Nav Flower ──────────────────────────────────────────── */
+/* Nav Flower */
 @keyframes navFlower{0%,100%{filter:drop-shadow(0 0 6px rgba(232,97,10,.5));transform:scale(1)} 50%{filter:drop-shadow(0 0 14px rgba(245,160,32,.85));transform:scale(1.05)}}
 .animate-nav-flower{animation:navFlower 2.8s ease-in-out infinite}
 
-/* ── Cursor Glow ─────────────────────────────────────────── */
+/* Cursor Glow */
 .cursor-glow{pointer-events:none;position:fixed;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(232,97,10,.07) 0%,transparent 70%);transform:translate(-50%,-50%);transition:left .08s ease,top .08s ease;z-index:5;will-change:left,top}
 
-/* ── Stat Card ───────────────────────────────────────────── */
+/* Stat Card */
 .stat-card{background:rgba(255,255,255,.04);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:4px;box-shadow:0 4px 24px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05)}
