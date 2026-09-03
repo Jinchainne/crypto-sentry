@@ -17,7 +17,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: #0E0804;
+  background: radial-gradient(ellipse at 55% 35%, #1E0E06 0%, #130804 35%, #0A0502 70%, #060301 100%) fixed;
   color: var(--color-text);
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -36,16 +36,16 @@ body {
 
 /* ── Animated Orbs ───────────────────────────────────────── */
 @keyframes orb1 {
-  0%, 100% { transform: scale(1); opacity: 0.10; }
-  50% { transform: scale(1.15); opacity: 0.18; }
+  0%, 100% { transform: scale(1); opacity: 0.12; }
+  50% { transform: scale(1.18); opacity: 0.22; }
 }
 @keyframes orb2 {
-  0%, 100% { transform: scale(1); opacity: 0.08; }
-  50% { transform: scale(1.2); opacity: 0.14; }
+  0%, 100% { transform: scale(1); opacity: 0.10; }
+  50% { transform: scale(1.25); opacity: 0.18; }
 }
 @keyframes orb3 {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.05; }
-  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.09; }
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.06; }
+  50% { transform: translate(-50%, -50%) scale(1.12); opacity: 0.12; }
 }
 .animate-orb-1 { animation: orb1 8s ease-in-out infinite; }
 .animate-orb-2 { animation: orb2 11s ease-in-out infinite 2s; }
@@ -210,4 +210,17 @@ tr:hover td { background: rgba(255,255,255,0.03); }
   background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.8s infinite;
+}
+
+/* ── Stat Card ───────────────────────────────────────────── */
+.stat-card {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
 }

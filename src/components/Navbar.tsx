@@ -24,7 +24,7 @@ export default function Navbar() {
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 shrink-0">
         <div
-          className="w-10 h-10 md:w-11 md:h-11 rounded-xl flex items-center justify-center text-[#0E0804] font-bold text-lg animate-nav-flower"
+          className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-[#0E0804] font-bold text-lg animate-nav-flower"
           style={{ background: "linear-gradient(135deg, #E8610A, #F5A020)" }}
         >
           S
@@ -35,11 +35,11 @@ export default function Navbar() {
         </span>
       </Link>
 
-      {/* Center pill nav — frosted glass */}
+      {/* Center pill nav — frosted glass, floating */}
       <div
         className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-0.5 rounded-full px-1.5 py-1 border border-white/10 backdrop-blur-xl"
         style={{
-          background: "rgba(14, 8, 4, 0.55)",
+          background: "rgba(14, 8, 4, 0.6)",
           boxShadow: "0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)",
         }}
       >
