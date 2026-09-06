@@ -32,6 +32,12 @@ function detectIntent(message: string): { intent: string; entities: string[] } {
   if (lower.includes("audit") || lower.includes("safe") || lower.includes("rug") || lower.includes("scam")) {
     return { intent: "token-audit", entities };
   }
+  if (lower.includes("regime") || lower.includes("risk-on") || lower.includes("risk-off") || lower.includes("market regime")) {
+    return { intent: "regime", entities };
+  }
+  if (lower.includes("news") || lower.includes("headlines") || lower.includes("sentiment")) {
+    return { intent: "news", entities };
+  }
   if (lower.includes("signal") || lower.includes("trade") || lower.includes("buy") || lower.includes("sell")) {
     return { intent: "trading-signal", entities };
   }
@@ -119,6 +125,56 @@ export async function processAgentMessage(
           }
         } else {
           response = "Please specify a token symbol to audit. Example: `Audit PEPE`";
+        }
+        break;
+      }
+
+      case "regime": {
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/signals`);
+          if (res.ok) {
+            const data = await res.json();
+            const r = data.regime;
+            const regimeEmoji = r.regime === "risk_on" ? "🟢" : r.regime === "risk_off" ? "🔴" : "🟡";
+            invocations.push({ name: "signals", input: "regime", output: r.regime });
+            response = `**Market Regime: ${r.regime === "risk_on" ? "Risk-On" : r.regime === "risk_off" ? "Risk-Off" : "Neutral"}** ${regimeEmoji}\n\n` +
+              `**Composite Score:** ${r.score >= 0 ? "+" : ""}${r.score.toFixed(2)}\n` +
+              `**Confidence:** ${Math.round(r.confidence * 100)}%\n` +
+              `**Volatility:** ${r.vol}\n\n` +
+              `**Signals:**\n` +
+              `- Flows: ${r.signals.flow.score >= 0 ? "+" : ""}${r.signals.flow.score.toFixed(2)} (${r.signals.flow.trend})\n` +
+              `- Sentiment: ${r.signals.sentiment.score >= 0 ? "+" : ""}${r.signals.sentiment.score.toFixed(2)} (${r.signals.sentiment.sampleSize} items)\n` +
+              `- Volatility: ${r.signals.volatility.score >= 0 ? "+" : ""}${r.signals.volatility.score.toFixed(2)} (${r.signals.volatility.state})\n\n` +
+              `**Leading Narrative:** ${data.narrative.leader.toUpperCase()}\n\n` +
+              `_${r.rationale.join(" | ")}_`;
+          } else {
+            response = "Could not fetch regime data. Please try again.";
+          }
+        } catch {
+          response = "Signal service unavailable. Please try again later.";
+        }
+        break;
+      }
+
+      case "news": {
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/news`);
+          if (res.ok) {
+            const data = await res.json();
+            const tone = data.overallSentiment > 0.15 ? "Bullish 🟢" : data.overallSentiment < -0.15 ? "Bearish 🔴" : "Mixed 🟡";
+            invocations.push({ name: "news-feed", input: "latest", output: `${data.items.length} items` });
+            response = `**📰 Crypto News Feed**\n\n` +
+              `**Overall Sentiment:** ${tone} (${data.overallSentiment >= 0 ? "+" : ""}${data.overallSentiment.toFixed(2)})\n\n` +
+              data.items.slice(0, 10).map((item: { sentiment: number; title: string; matchedSymbols: string[] }) => {
+                const dot = item.sentiment > 0.15 ? "🟢" : item.sentiment < -0.15 ? "🔴" : "🟡";
+                const syms = item.matchedSymbols.slice(0, 2).map((s: string) => `**${s}**`).join(", ");
+                return `${dot} ${item.title}${syms ? ` [${syms}]` : ""}`;
+              }).join("\n");
+          } else {
+            response = "Could not fetch news. Please try again.";
+          }
+        } catch {
+          response = "News service unavailable. Please try again later.";
         }
         break;
       }
@@ -255,6 +311,8 @@ export async function processAgentMessage(
             `🐋 **Wallet Tracking** — "Track wallet 0x..."\n` +
             `🔥 **Meme Rush** — "What's trending?" or "Show me meme tokens"\n` +
             `📊 **Market Rankings** — "Market overview" or "Top coins"\n` +
+            `🧭 **Market Regime** — "What's the market regime?" or "Risk-on or risk-off?"\n` +
+            `📰 **News Feed** — "Latest crypto news" or "What's the sentiment?"\n` +
             `🔬 **Full Analysis** — "Analyze SOL" for a complete breakdown\n\n` +
             `Just ask me anything about crypto!`;
         }

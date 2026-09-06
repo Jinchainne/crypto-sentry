@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import type { MarketRankItem, TradingSignal, MemeToken } from "@/lib/types";
-import { formatPercent, timeAgo } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
 import MarketTicker from "@/components/MarketTicker";
+import RegimeHero from "@/components/RegimeHero";
+import NewsFeed from "@/components/NewsFeed";
+import NarrativePanel from "@/components/NarrativePanel";
 
 function getRiskClass(risk: string): string {
   switch (risk) {
@@ -43,13 +46,13 @@ export default function DashboardPage() {
 
       <MarketTicker />
 
-      {/* KPI Cards — Bloom-AI style */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
           { label: "Active Signals", value: signals.length.toString(), sub: "Across 4 tokens", positive: true, icon: "📈" },
           { label: "Tokens Tracked", value: market.length.toString(), sub: "Live market data", positive: true, icon: "🪙" },
           { label: "Meme Tokens", value: memes.length.toString(), sub: "Trending now", positive: true, icon: "🔥" },
-          { label: "Skills Active", value: "6", sub: "Binance Skills Hub", positive: true, icon: "🤖" },
+          { label: "Skills Active", value: "8", sub: "Binance Skills Hub", positive: true, icon: "🤖" },
         ].map((kpi) => (
           <div key={kpi.label} className="glass-card p-5">
             <div className="flex items-start justify-between mb-2">
@@ -66,6 +69,16 @@ export default function DashboardPage() {
             )}
           </div>
         ))}
+      </div>
+
+      {/* Regime + Narrative + News */}
+      <div className="grid md:grid-cols-2 gap-4 mb-6">
+        <RegimeHero />
+        <NarrativePanel />
+      </div>
+
+      <div className="mb-6">
+        <NewsFeed />
       </div>
 
       {/* Market Rankings */}
