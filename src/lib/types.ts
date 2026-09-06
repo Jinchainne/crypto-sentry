@@ -97,3 +97,75 @@ export interface AuditResult {
   proxyContract: boolean;
   liquidityLocked: boolean;
 }
+
+// ---------------------------------------------------------------------------
+// Market primitives (for signal layer)
+// ---------------------------------------------------------------------------
+
+/** Daily OHLC candle. Volume optional (SSI index klines carry no volume). */
+export interface Candle {
+  t: number;
+  o: number;
+  h: number;
+  l: number;
+  c: number;
+  v?: number;
+}
+
+// ---------------------------------------------------------------------------
+// Signal layer types
+// ---------------------------------------------------------------------------
+
+import type { Sector } from "@/lib/universe";
+
+export type Regime = "risk_on" | "neutral" | "risk_off";
+export type VolState = "calm" | "elevated" | "stressed";
+
+export interface SignalScore {
+  score: number;
+  detail: string;
+}
+
+export interface FlowSignal extends SignalScore {
+  latestNetInflowUsd: number;
+  zScore: number;
+  trend: "inflow" | "outflow" | "flat";
+  perAsset: Record<string, number>;
+}
+
+export interface SentimentSignal extends SignalScore {
+  sampleSize: number;
+  perAsset: Record<string, number>;
+}
+
+export interface VolatilitySignal extends SignalScore {
+  annualizedVol: number;
+  state: VolState;
+}
+
+export interface RegimeAssessment {
+  regime: Regime;
+  vol: VolState;
+  score: number;
+  confidence: number;
+  rationale: string[];
+  signals: {
+    flow: FlowSignal;
+    sentiment: SentimentSignal;
+    volatility: VolatilitySignal;
+  };
+  asOf: number;
+}
+
+export interface SectorScore {
+  sector: Sector;
+  score: number;
+  momentum: number;
+  detail: string;
+}
+
+export interface NarrativeRanking {
+  leader: Sector;
+  ranked: SectorScore[];
+  asOf: number;
+}

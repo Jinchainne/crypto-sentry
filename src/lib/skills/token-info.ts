@@ -36,7 +36,7 @@ interface CoinGeckoDetail {
   description?: { en: string };
 }
 
-let cachedTokens: Record<string, TokenInfo> = {};
+const cachedTokens: Record<string, TokenInfo> = {};
 let cacheTime = 0;
 
 function coinToTokenInfo(c: CoinGeckoDetail): TokenInfo {
@@ -108,6 +108,7 @@ export async function getTopTokens(limit: number = 8): Promise<TokenInfo[]> {
     );
     if (!res.ok) throw new Error(`CoinGecko ${res.status}`);
     const data = await res.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.map((c: any) => ({
       symbol: (c.symbol as string).toUpperCase(),
       name: c.name,

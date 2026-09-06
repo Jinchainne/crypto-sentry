@@ -47,7 +47,7 @@ interface CoinGeckoDetail {
   last_updated: string;
 }
 
-let cachedAudits: Record<string, AuditResult> = {};
+const cachedAudits: Record<string, AuditResult> = {};
 
 export async function auditToken(symbol: string): Promise<AuditResult | null> {
   const normalized = symbol.toUpperCase();

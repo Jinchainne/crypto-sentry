@@ -34,7 +34,7 @@ const KNOWN_LABELS: Record<string, string> = {
   "0x176f3dab24a159341c0509bb36b833e7fdd0a132": "Coinbase Commerce",
 };
 
-let cachedWallets: Record<string, WalletInfo> = {};
+const cachedWallets: Record<string, WalletInfo> = {};
 
 export async function trackWallet(address: string): Promise<WalletInfo | null> {
   const normalized = address.toLowerCase();
