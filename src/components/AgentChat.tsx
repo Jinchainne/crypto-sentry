@@ -4,11 +4,11 @@ import { useState, useRef, useEffect } from "react";
 import type { AgentMessage } from "@/lib/types";
 
 export default function AgentChat() {
-  const [messages, setMessages] = useState<AgentMessage[]>([
+  const [messages, setMessages] = useState<AgentMessage[]>(() => [
     {
       role: "assistant",
       content: `Welcome! I'm **CryptoSentry**, your AI crypto intelligence agent powered by **Binance Skills Hub**.\n\nI combine 6 skills into one conversational interface:\n\n🔍 **Token Info** — "What is SOL?"\n🛡️ **Security Audit** — "Audit PEPE"\n📈 **Trading Signals** — "Trading signals"\n🐋 **Wallet Tracking** — "Track wallet 0x..."\n🔥 **Meme Rush** — "What's trending?"\n📊 **Market Rankings** — "Top coins"\n🔬 **Full Analysis** — "Analyze SOL"\n\nTry one of the quick prompts below, or ask me anything about crypto!`,
-      timestamp: Date.now(),
+      timestamp: 0,
     },
   ]);
   const [input, setInput] = useState("");
@@ -23,7 +23,7 @@ export default function AgentChat() {
     const msg = text || input.trim();
     if (!msg || loading) return;
 
-    const userMsg: AgentMessage = { role: "user", content: msg, timestamp: Date.now() };
+    const userMsg: AgentMessage = { role: "user", content: msg, timestamp: +new Date() };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
@@ -38,7 +38,7 @@ export default function AgentChat() {
       setMessages((prev) => [...prev, {
         role: "assistant",
         content: data.message,
-        timestamp: Date.now(),
+        timestamp: +new Date(),
         skillsUsed: data.skillsInvoked,
       }]);
     } catch {
