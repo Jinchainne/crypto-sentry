@@ -412,7 +412,14 @@ export async function processAgentMessage(
             }
           }
         } else {
-          response = "Please specify a token. Example: `What is ETH?` or `Price of SOL`";
+          // No token symbol found — use LLM for general questions
+          try {
+            const llmResponse = await callLLM(lastMessage.content);
+            invocations.push({ name: "llm", input: lastMessage.content, output: "AI response" });
+            response = llmResponse;
+          } catch {
+            response = "Please specify a token. Example: `What is ETH?` or `Price of SOL`";
+          }
         }
         break;
       }
