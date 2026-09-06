@@ -131,25 +131,19 @@ export async function processAgentMessage(
 
       case "regime": {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/signals`);
-          if (res.ok) {
-            const data = await res.json();
-            const r = data.regime;
-            const regimeEmoji = r.regime === "risk_on" ? "🟢" : r.regime === "risk_off" ? "🔴" : "🟡";
-            invocations.push({ name: "signals", input: "regime", output: r.regime });
-            response = `**Market Regime: ${r.regime === "risk_on" ? "Risk-On" : r.regime === "risk_off" ? "Risk-Off" : "Neutral"}** ${regimeEmoji}\n\n` +
-              `**Composite Score:** ${r.score >= 0 ? "+" : ""}${r.score.toFixed(2)}\n` +
-              `**Confidence:** ${Math.round(r.confidence * 100)}%\n` +
-              `**Volatility:** ${r.vol}\n\n` +
-              `**Signals:**\n` +
-              `- Flows: ${r.signals.flow.score >= 0 ? "+" : ""}${r.signals.flow.score.toFixed(2)} (${r.signals.flow.trend})\n` +
-              `- Sentiment: ${r.signals.sentiment.score >= 0 ? "+" : ""}${r.signals.sentiment.score.toFixed(2)} (${r.signals.sentiment.sampleSize} items)\n` +
-              `- Volatility: ${r.signals.volatility.score >= 0 ? "+" : ""}${r.signals.volatility.score.toFixed(2)} (${r.signals.volatility.state})\n\n` +
-              `**Leading Narrative:** ${data.narrative.leader.toUpperCase()}\n\n` +
-              `_${r.rationale.join(" | ")}_`;
-          } else {
-            response = "Could not fetch regime data. Please try again.";
-          }
+          const { buildSignals } = await import("./signals");
+          const { regime: r } = await buildSignals();
+          const regimeEmoji = r.regime === "risk_on" ? "🟢" : r.regime === "risk_off" ? "🔴" : "🟡";
+          invocations.push({ name: "signals", input: "regime", output: r.regime });
+          response = `**Market Regime: ${r.regime === "risk_on" ? "Risk-On" : r.regime === "risk_off" ? "Risk-Off" : "Neutral"}** ${regimeEmoji}\n\n` +
+            `**Composite Score:** ${r.score >= 0 ? "+" : ""}${r.score.toFixed(2)}\n` +
+            `**Confidence:** ${Math.round(r.confidence * 100)}%\n` +
+            `**Volatility:** ${r.vol}\n\n` +
+            `**Signals:**\n` +
+            `- Flows: ${r.signals.flow.score >= 0 ? "+" : ""}${r.signals.flow.score.toFixed(2)} (${r.signals.flow.trend})\n` +
+            `- Sentiment: ${r.signals.sentiment.score >= 0 ? "+" : ""}${r.signals.sentiment.score.toFixed(2)} (${r.signals.sentiment.sampleSize} items)\n` +
+            `- Volatility: ${r.signals.volatility.score >= 0 ? "+" : ""}${r.signals.volatility.score.toFixed(2)} (${r.signals.volatility.state})\n\n` +
+            `**Rationale:**\n${r.rationale.map((reason: string) => `- ${reason}`).join("\n")}`;
         } catch {
           response = "Signal service unavailable. Please try again later.";
         }
@@ -158,21 +152,18 @@ export async function processAgentMessage(
 
       case "news": {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/news`);
-          if (res.ok) {
-            const data = await res.json();
-            const tone = data.overallSentiment > 0.15 ? "Bullish 🟢" : data.overallSentiment < -0.15 ? "Bearish 🔴" : "Mixed 🟡";
-            invocations.push({ name: "news-feed", input: "latest", output: `${data.items.length} items` });
-            response = `**📰 Crypto News Feed**\n\n` +
-              `**Overall Sentiment:** ${tone} (${data.overallSentiment >= 0 ? "+" : ""}${data.overallSentiment.toFixed(2)})\n\n` +
-              data.items.slice(0, 10).map((item: { sentiment: number; title: string; matchedSymbols: string[] }) => {
-                const dot = item.sentiment > 0.15 ? "🟢" : item.sentiment < -0.15 ? "🔴" : "🟡";
-                const syms = item.matchedSymbols.slice(0, 2).map((s: string) => `**${s}**`).join(", ");
-                return `${dot} ${item.title}${syms ? ` [${syms}]` : ""}`;
-              }).join("\n");
-          } else {
-            response = "Could not fetch news. Please try again.";
-          }
+          const { buildSignals } = await import("./signals");
+          const { narrative } = await buildSignals();
+          const topSectors = narrative.ranked.slice(0, 5);
+          invocations.push({ name: "news-feed", input: "narrative", output: `${topSectors.length} sectors` });
+          response = `**📰 Narrative & Sector Momentum**\n\n` +
+            `**Leading Narrative:** ${narrative.leader.toUpperCase()} 🏆\n\n` +
+            topSectors.map((s: { sector: string; momentum: number }, i: number) => {
+              const emoji = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "  ";
+              const sign = s.momentum >= 0 ? "+" : "";
+              return `${emoji} **${s.sector}** — ${sign}${(s.momentum * 100).toFixed(1)}% momentum`;
+            }).join("\n") +
+            `\n\n_Sector momentum blends 7-day and 30-day SSI index returns. The index tilts toward the leader when risk-on._`;
         } catch {
           response = "News service unavailable. Please try again later.";
         }
