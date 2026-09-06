@@ -10,7 +10,7 @@ export default function TokensPage() {
   const [audit, setAudit] = useState<AuditResult | null>(null);
 
   useEffect(() => {
-    import("@/lib/skills/token-info").then(m => m.getTopTokens().then(setTokens));
+    fetch("/api/skills/tokens").then(r => r.json()).then(setTokens).catch(() => {});
   }, []);
 
   const runAudit = async (symbol: string) => {

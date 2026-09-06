@@ -21,9 +21,9 @@ export default function DashboardPage() {
   const [memes, setMemes] = useState<MemeToken[]>([]);
 
   useEffect(() => {
-    import("@/lib/skills/market-rank").then(m => m.getMarketRank().then(setMarket));
-    import("@/lib/skills/trading-signal").then(m => m.getSignals().then(setSignals));
-    import("@/lib/skills/meme-rush").then(m => m.getMemeRush().then(setMemes));
+    fetch("/api/skills/market").then(r => r.json()).then(setMarket).catch(() => {});
+    fetch("/api/skills/signals").then(r => r.json()).then(setSignals).catch(() => {});
+    fetch("/api/skills/memes").then(r => r.json()).then(setMemes).catch(() => {});
   }, []);
 
   return (

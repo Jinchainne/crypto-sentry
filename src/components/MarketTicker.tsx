@@ -9,23 +9,28 @@ interface Ticker {
   change: number;
 }
 
-const DEMO_TICKERS: Ticker[] = [
-  { symbol: "BTC", price: "65,234.50", change: 1.56 },
-  { symbol: "ETH", price: "3,118.50", change: 2.34 },
-  { symbol: "BNB", price: "600.00", change: -1.23 },
-  { symbol: "SOL", price: "178.90", change: 5.67 },
-  { symbol: "XRP", price: "0.6234", change: -0.45 },
-  { symbol: "DOGE", price: "0.1567", change: 8.90 },
-  { symbol: "ADA", price: "0.4523", change: 1.12 },
-  { symbol: "AVAX", price: "35.67", change: 3.45 },
-];
-
 export default function MarketTicker() {
-  const [tickers, setTickers] = useState<Ticker[]>(DEMO_TICKERS);
+  const [tickers, setTickers] = useState<Ticker[]>([]);
   const trackRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    fetch("/api/skills/market")
+      .then((r) => r.json())
+      .then((data: Array<{ symbol: string; price: string; change24h: number }>) => {
+        const mapped = data.map((d) => ({
+          symbol: d.symbol,
+          price: d.price.replace("$", ""),
+          change: d.change24h,
+        }));
+        setTickers(mapped);
+      })
+      .catch(() => {});
+  }, []);
+
   // Duplicate for seamless scroll
-  const items = [...tickers, ...tickers];
+  const items = tickers.length > 0 ? [...tickers, ...tickers] : [];
+
+  if (items.length === 0) return null;
 
   return (
     <div className="overflow-hidden border-y border-white/[0.06] py-2 mb-6">

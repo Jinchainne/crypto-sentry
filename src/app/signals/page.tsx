@@ -8,7 +8,7 @@ export default function SignalsPage() {
   const [signals, setSignals] = useState<TradingSignal[]>([]);
 
   useEffect(() => {
-    import("@/lib/skills/trading-signal").then(m => m.getSignals().then(setSignals));
+    fetch("/api/skills/signals").then(r => r.json()).then(setSignals).catch(() => {});
   }, []);
 
   return (
