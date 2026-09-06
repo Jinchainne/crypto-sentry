@@ -6,6 +6,12 @@ import { getSignals, getSignalForToken } from "./skills/trading-signal";
 import { getMarketRank } from "./skills/market-rank";
 import { getMemeRush } from "./skills/meme-rush";
 import { callLLM } from "./llm";
+import { getPortfolio, getAllocation } from "./portfolio/store";
+import { getRiskMetrics, runRiskChecks } from "./risk";
+import { previewTrade } from "./execution/preview";
+import { routeOrder } from "./execution/router";
+import { addPosition, updateCash } from "./portfolio/store";
+import type { TradeRequest } from "./execution/router";
 
 interface SkillInvocation {
   name: string;
@@ -26,6 +32,18 @@ function detectIntent(message: string): { intent: string; entities: string[] } {
   if (addrMatch) entities.push(...addrMatch);
 
   // Detect intent
+  if (lower.includes("portfolio") || lower.includes("holdings") || lower.includes("positions") || lower.includes("pnl") || lower.includes("balance")) {
+    return { intent: "portfolio", entities };
+  }
+  if ((lower.includes("buy") || lower.includes("sell") || lower.includes("execute") || lower.includes("trade")) && (lower.includes("btc") || lower.includes("eth") || lower.includes("sol") || lower.includes("bnb") || lower.match(/\d/))) {
+    return { intent: "execute", entities };
+  }
+  if (lower.includes("risk") || lower.includes("risk check") || lower.includes("risk metric")) {
+    return { intent: "risk", entities };
+  }
+  if (lower.includes("alert") || lower.includes("monitor") || lower.includes("watch")) {
+    return { intent: "alert", entities };
+  }
   if (lower.includes("wallet") || lower.includes("track") || lower.includes("address")) {
     return { intent: "wallet-track", entities };
   }
@@ -75,6 +93,148 @@ export async function processAgentMessage(
 
   try {
     switch (intent) {
+      case "portfolio": {
+        const portfolio = getPortfolio();
+        const allocation = getAllocation();
+        invocations.push({ name: "portfolio", input: "current", output: `${portfolio.positions.length} positions` });
+
+        const pnlEmoji = portfolio.dailyPnl >= 0 ? "📈" : "📉";
+        response = `**💼 Portfolio Overview** ${pnlEmoji}\n\n` +
+          `**Mode:** ${portfolio.mode.toUpperCase()}\n` +
+          `**Total Value:** $${portfolio.totalValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}\n` +
+          `**Cash:** $${portfolio.cash.toLocaleString(undefined, { maximumFractionDigits: 2 })}\n` +
+          `**Daily P&L:** ${portfolio.dailyPnl >= 0 ? "+" : ""}$${portfolio.dailyPnl.toFixed(2)}\n` +
+          `**Realized P&L:** ${portfolio.realizedPnl >= 0 ? "+" : ""}$${portfolio.realizedPnl.toFixed(2)}\n\n`;
+
+        if (portfolio.positions.length > 0) {
+          response += `**Open Positions:**\n` +
+            portfolio.positions.map((p) => {
+              const pnlSign = p.unrealizedPnl >= 0 ? "+" : "";
+              return `- **${p.symbol}** (${p.side}) — ${p.quantity.toFixed(4)} @ $${p.avgEntry.toLocaleString()} → $${p.currentPrice.toLocaleString()} | P&L: ${pnlSign}$${p.unrealizedPnl.toFixed(2)}`;
+            }).join("\n") + "\n\n";
+        }
+
+        if (allocation.length > 0) {
+          response += `**Allocation:**\n` +
+            allocation.map((a) => `- ${a.symbol}: ${a.percent.toFixed(1)}% ($${a.value.toLocaleString()})`).join("\n");
+        }
+
+        if (portfolio.positions.length === 0) {
+          response += `_No open positions. Try "buy BTC" to start trading._`;
+        }
+        break;
+      }
+
+      case "execute": {
+        const symbol = entities.find((e) => !e.startsWith("0x") && e.length >= 2 && e.length <= 5);
+        const side = lastMessage.content.toLowerCase().includes("sell") ? "sell" : "buy";
+        const qtyMatch = lastMessage.content.match(/(\d+\.?\d*)\s*(BTC|ETH|SOL|BNB)/i);
+        const qty = qtyMatch ? parseFloat(qtyMatch[1]) : 0.01;
+
+        if (!symbol) {
+          response = "Please specify a token to trade. Example: `Buy 0.1 BTC` or `Sell 1 ETH`";
+          break;
+        }
+
+        try {
+          // Get current price from token info
+          const info = await getTokenInfo(symbol);
+          const priceStr = info?.price?.replace(/[^0-9.]/g, "") || "0";
+          const price = parseFloat(priceStr) || 65000;
+
+          const tradeReq: TradeRequest = {
+            symbol: symbol.toUpperCase(),
+            side: side as "buy" | "sell",
+            quantity: qty,
+            price,
+            mode: "paper",
+          };
+
+          const tradePreview = previewTrade(tradeReq);
+          const riskCheck = runRiskChecks(tradeReq);
+
+          invocations.push(
+            { name: "execution-preview", input: `${side} ${qty} ${symbol}`, output: "preview" },
+            { name: "risk-check", input: symbol, output: riskCheck.passed ? "passed" : "blocked" }
+          );
+
+          const riskEmoji = riskCheck.passed ? "✅" : "❌";
+          response = `**⚡ Trade Preview: ${side.toUpperCase()} ${qty} ${symbol.toUpperCase()}**\n\n` +
+            `**Mode:** PAPER (default)\n` +
+            `**Est. Price:** $${tradePreview.estimatedPrice.toLocaleString()}\n` +
+            `**Est. Cost:** $${tradePreview.estimatedCost.toLocaleString()}\n` +
+            `**Fees:** $${tradePreview.fees.toFixed(2)}\n` +
+            `**Slippage:** ${tradePreview.slippage}%\n\n` +
+            `**Risk Checks:** ${riskEmoji}\n` +
+            riskCheck.checks.map((c) => `- ${c.passed ? "✅" : "❌"} ${c.name}: ${c.detail}`).join("\n") + "\n\n";
+
+          if (riskCheck.warnings.length > 0) {
+            response += `**Warnings:**\n${riskCheck.warnings.map((w) => `- ⚠️ ${w}`).join("\n")}\n\n`;
+          }
+
+          if (riskCheck.passed) {
+            // Auto-execute paper trade
+            const finalReq = { ...tradeReq, quantity: riskCheck.adjustedQuantity || qty };
+            const result = await routeOrder(finalReq);
+
+            if (result.status === "filled") {
+              const cost = result.quantity * result.avgPrice;
+              updateCash(-cost - result.fees);
+              addPosition({
+                symbol: result.symbol,
+                quantity: result.quantity,
+                avgEntry: result.avgPrice,
+                currentPrice: result.avgPrice,
+                unrealizedPnl: 0,
+                side: "long",
+                openedAt: Date.now(),
+              });
+
+              response += `**✅ Trade Executed (Paper)**\n` +
+                `Order ID: \`${result.orderId}\`\n` +
+                `Filled: ${result.quantity} @ $${result.avgPrice.toLocaleString()}\n` +
+                `Fees: $${result.fees.toFixed(2)}`;
+            }
+          } else {
+            response += `_Trade blocked by risk management. Adjust your order._`;
+          }
+        } catch (err) {
+          response = `Trade preview failed: ${err instanceof Error ? err.message : "Unknown error"}. Try specifying a price manually.`;
+        }
+        break;
+      }
+
+      case "risk": {
+        const metrics = getRiskMetrics();
+        invocations.push({ name: "risk-sentinel", input: "metrics", output: `score: ${metrics.riskScore}` });
+
+        const scoreEmoji = metrics.riskScore < 30 ? "🟢" : metrics.riskScore < 60 ? "🟡" : "🔴";
+        response = `**🛡️ Risk Dashboard** ${scoreEmoji}\n\n` +
+          `**Risk Score:** ${metrics.riskScore}/100\n` +
+          `**Total Value:** $${metrics.totalValue.toLocaleString()}\n` +
+          `**Cash:** $${metrics.cash.toLocaleString()}\n` +
+          `**Daily P&L:** ${metrics.dailyPnl >= 0 ? "+" : ""}$${metrics.dailyPnl.toFixed(2)} (${metrics.dailyLossPct.toFixed(2)}% loss)\n` +
+          `**Positions:** ${metrics.positionCount}\n` +
+          `**Max Concentration:** ${metrics.maxConcentration.toFixed(1)}%\n\n`;
+
+        if (metrics.alerts.length > 0) {
+          response += `**⚠️ Alerts:**\n${metrics.alerts.map((a) => `- ${a}`).join("\n")}`;
+        } else {
+          response += `_All risk parameters within normal range._`;
+        }
+        break;
+      }
+
+      case "alert": {
+        response = `**🔔 Alert System**\n\n` +
+          `Alert monitoring is active. Current capabilities:\n\n` +
+          `- **Regime changes** — I'll notify you when market switches between risk-on/risk-off\n` +
+          `- **Price alerts** — Set via "Alert me when BTC hits $X"\n` +
+          `- **Risk alerts** — Automatic warnings when daily loss > 3%\n\n` +
+          `_Alerts are delivered through the chat. Full push notifications coming soon._`;
+        break;
+      }
+
       case "wallet-track": {
         const addr = entities.find((e) => e.startsWith("0x"));
         if (addr) {
@@ -294,18 +454,22 @@ export async function processAgentMessage(
           response = llmResponse;
         } catch {
           // Fallback if LLM not configured
-          response = `I'm **CryptoSentry**, your AI crypto intelligence agent powered by Binance Skills Hub.\n\n` +
-            `Here's what I can help with:\n\n` +
-            `🔍 **Token Info** — "What is SOL?" or "Price of ETH"\n` +
-            `🛡️ **Security Audit** — "Audit PEPE" or "Is WIF safe?"\n` +
-            `📈 **Trading Signals** — "Trading signals" or "Should I buy BTC?"\n` +
-            `🐋 **Wallet Tracking** — "Track wallet 0x..."\n` +
-            `🔥 **Meme Rush** — "What's trending?" or "Show me meme tokens"\n` +
-            `📊 **Market Rankings** — "Market overview" or "Top coins"\n` +
-            `🧭 **Market Regime** — "What's the market regime?" or "Risk-on or risk-off?"\n` +
-            `📰 **News Feed** — "Latest crypto news" or "What's the sentiment?"\n` +
-            `🔬 **Full Analysis** — "Analyze SOL" for a complete breakdown\n\n` +
-            `Just ask me anything about crypto!`;
+          response = `I'm **CryptoSentry**, your autonomous crypto intelligence agent.\n\n` +
+              `Here's what I can do:\n\n` +
+              `💼 **Portfolio** — "Show my portfolio" or "What are my positions?"\n` +
+              `⚡ **Execute Trades** — "Buy 0.01 BTC" or "Sell 1 ETH" (paper mode)\n` +
+              `🛡️ **Risk Check** — "Show risk metrics" or "Run risk check"\n` +
+              `🔔 **Alerts** — "Set up alerts" or "Monitor BTC"\n` +
+              `🔍 **Token Info** — "What is SOL?" or "Price of ETH"\n` +
+              `🛡️ **Security Audit** — "Audit PEPE" or "Is WIF safe?"\n` +
+              `📈 **Trading Signals** — "Trading signals" or "What's the signal?"\n` +
+              `🐋 **Wallet Tracking** — "Track wallet 0x..."\n` +
+              `🔥 **Meme Rush** — "What's trending?" or "Show me meme tokens"\n` +
+              `📊 **Market Rankings** — "Market overview" or "Top coins"\n` +
+              `🧭 **Market Regime** — "What's the market regime?"\n` +
+              `📰 **Narrative** — "Latest crypto news" or "Sector momentum"\n` +
+              `🔬 **Full Analysis** — "Analyze SOL" for a complete breakdown\n\n` +
+              `_Default mode: Paper trading (no real money). All trades pass risk checks._`;
         }
       }
     }

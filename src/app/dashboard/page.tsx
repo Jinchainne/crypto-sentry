@@ -7,6 +7,8 @@ import MarketTicker from "@/components/MarketTicker";
 import RegimeHero from "@/components/RegimeHero";
 import NewsFeed from "@/components/NewsFeed";
 import NarrativePanel from "@/components/NarrativePanel";
+import PortfolioPanel from "@/components/PortfolioPanel";
+import ExecutionPanel from "@/components/ExecutionPanel";
 
 function getRiskClass(risk: string): string {
   switch (risk) {
@@ -75,6 +77,12 @@ export default function DashboardPage() {
       <div className="grid md:grid-cols-2 gap-4 mb-6">
         <RegimeHero />
         <NarrativePanel />
+      </div>
+
+      {/* Portfolio + Execution */}
+      <div className="grid md:grid-cols-2 gap-4 mb-6">
+        <PortfolioPanel />
+        <ExecutionPanel />
       </div>
 
       <div className="mb-6">
