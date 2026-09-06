@@ -77,8 +77,32 @@ export default function AgentChat() {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem)]">
-      {/* Messages */}
+    <div className="glass-card overflow-hidden flex flex-col" style={{ height: "min(75vh, 680px)" }}>
+      {/* ── Header Bar ── */}
+      <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06] shrink-0">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#0E0804] font-bold text-xs animate-glow-pulse"
+            style={{ background: "linear-gradient(135deg, #E8610A, #F5A020)" }}
+          >
+            S
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-[#F5F0E8] leading-tight">
+              CryptoSentry Agent
+            </h3>
+            <p className="text-[10px] text-[#A8A09A] leading-tight">
+              Binance Skills Hub · 6 skills
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="live-dot" />
+          <span className="text-[10px] text-[#E8610A] font-medium">Online</span>
+        </div>
+      </div>
+
+      {/* ── Messages ── */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -126,9 +150,9 @@ export default function AgentChat() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Quick prompts */}
+      {/* ── Quick prompts ── */}
       {messages.length <= 1 && (
-        <div className="px-4 pb-3 flex flex-wrap gap-2 justify-center">
+        <div className="px-4 pb-3 flex flex-wrap gap-2 justify-center shrink-0">
           {quickPrompts.map((prompt) => (
             <button
               key={prompt.label}
@@ -142,8 +166,8 @@ export default function AgentChat() {
         </div>
       )}
 
-      {/* Input */}
-      <div className="p-4 border-t border-white/[0.06]">
+      {/* ── Input ── */}
+      <div className="p-4 border-t border-white/[0.06] shrink-0">
         <div className="flex gap-2 max-w-3xl mx-auto">
           <input
             type="text"
