@@ -5,6 +5,7 @@ import { auditToken } from "./skills/token-audit";
 import { getSignals, getSignalForToken } from "./skills/trading-signal";
 import { getMarketRank } from "./skills/market-rank";
 import { getMemeRush } from "./skills/meme-rush";
+import { callLLM } from "./llm";
 
 interface SkillInvocation {
   name: string;
@@ -239,16 +240,24 @@ export async function processAgentMessage(
       }
 
       default: {
-        response = `I'm **CryptoSentry**, your AI crypto intelligence agent powered by Binance Skills Hub.\n\n` +
-          `Here's what I can help with:\n\n` +
-          `🔍 **Token Info** — "What is SOL?" or "Price of ETH"\n` +
-          `🛡️ **Security Audit** — "Audit PEPE" or "Is WIF safe?"\n` +
-          `📈 **Trading Signals** — "Trading signals" or "Should I buy BTC?"\n` +
-          `🐋 **Wallet Tracking** — "Track wallet 0x..."\n` +
-          `🔥 **Meme Rush** — "What's trending?" or "Show me meme tokens"\n` +
-          `📊 **Market Rankings** — "Market overview" or "Top coins"\n` +
-          `🔬 **Full Analysis** — "Analyze SOL" for a complete breakdown\n\n` +
-          `Just ask me anything about crypto!`;
+        // Try LLM for general questions
+        try {
+          const llmResponse = await callLLM(lastMessage.content);
+          invocations.push({ name: "llm", input: lastMessage.content, output: "AI response" });
+          response = llmResponse;
+        } catch {
+          // Fallback if LLM not configured
+          response = `I'm **CryptoSentry**, your AI crypto intelligence agent powered by Binance Skills Hub.\n\n` +
+            `Here's what I can help with:\n\n` +
+            `🔍 **Token Info** — "What is SOL?" or "Price of ETH"\n` +
+            `🛡️ **Security Audit** — "Audit PEPE" or "Is WIF safe?"\n` +
+            `📈 **Trading Signals** — "Trading signals" or "Should I buy BTC?"\n` +
+            `🐋 **Wallet Tracking** — "Track wallet 0x..."\n` +
+            `🔥 **Meme Rush** — "What's trending?" or "Show me meme tokens"\n` +
+            `📊 **Market Rankings** — "Market overview" or "Top coins"\n` +
+            `🔬 **Full Analysis** — "Analyze SOL" for a complete breakdown\n\n` +
+            `Just ask me anything about crypto!`;
+        }
       }
     }
   } catch (error) {
